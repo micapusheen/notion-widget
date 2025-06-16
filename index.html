@@ -14,7 +14,7 @@
       justify-content: center;
       align-items: start;
       height: 100vh;
-    } 
+    }
 
     .countdown-container {
       background-color: #fdf8f3;
@@ -30,9 +30,6 @@
       font-size: 1.25rem;
       font-weight: bold;
       color: #4a3f35;
-      border: none;
-      background: none;
-      outline: none;
       text-align: center;
       margin-bottom: 1.2rem;
     }
@@ -65,30 +62,11 @@
       color: #7a6a56;
       margin: 4px 0 0 0;
     }
-
-    input[type="date"] {
-      font-size: 0.85rem;
-      border: none;
-      border-bottom: 1px solid #c8b9a6;
-      background-color: transparent;
-      color: #4a3f35;
-      text-align: center;
-      width: 100%;
-    }
-
-    input[type="date"]:focus {
-      outline: none;
-      border-bottom: 1px solid #a4937d;
-    }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(30%);
-    }
   </style>
 </head>
 <body>
   <div class="countdown-container">
-    <div contenteditable="true" class="editable-title" id="title">Tu título aquí</div>
+    <div class="editable-title">EuroTrip ✈️</div>
     <div class="countdown-row">
       <div class="count-box">
         <span id="months">0</span>
@@ -107,51 +85,16 @@
         <p>Horas</p>
       </div>
     </div>
-    <input type="date" id="date-input" title="Elegí una fecha" />
   </div>
 
   <script>
-    const titleElement = document.getElementById("title");
-    const dateInput = document.getElementById("date-input");
-
-    // Cargar datos previos
-    const savedTitle = localStorage.getItem("widget-title");
-    const savedDate = localStorage.getItem("widget-date");
-
-    if (savedTitle) {
-      titleElement.textContent = savedTitle;
-    }
-
-    if (savedDate) {
-      dateInput.value = savedDate;
-      date = new Date(savedDate + "T00:00:00-03:00");
-    } else {
-      // Establecer fecha inicial por defecto: 6 oct 2025
-      const defaultDate = "2025-10-03";
-      dateInput.value = defaultDate;
-      localStorage.setItem("widget-date", defaultDate);
-      date = new Date(defaultDate + "T00:00:00-03:00");
-    }
-
-    // Guardar nuevo título cuando se edita
-    titleElement.addEventListener("input", () => {
-      localStorage.setItem("widget-title", titleElement.textContent);
-    });
-
-    // Guardar nueva fecha cuando se cambia
-    dateInput.addEventListener("change", () => {
-      const input = dateInput.value;
-      if (!input) return;
-      localStorage.setItem("widget-date", input);
-      date = new Date(input + "T00:00:00-03:00");
-      update();
-    });
-
-    let date = new Date(dateInput.value + "T00:00:00-03:00");
+    const targetDate = new Date("2025-10-03T00:00:00-03:00");
 
     function update() {
       const now = new Date();
-      if (!date || date <= now) {
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
         document.getElementById("months").textContent = 0;
         document.getElementById("weeks").textContent = 0;
         document.getElementById("days").textContent = 0;
@@ -159,10 +102,8 @@
         return;
       }
 
-      const diff = date - now;
       const totalHours = Math.floor(diff / (1000 * 60 * 60));
       const totalDays = Math.floor(totalHours / 24);
-
       const months = Math.floor(totalDays / 30);
       const weeks = Math.floor(totalDays / 7);
       const days = totalDays % 7;
