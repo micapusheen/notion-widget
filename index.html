@@ -14,7 +14,7 @@
       justify-content: center;
       align-items: start;
       height: 100vh;
-    }
+    } 
 
     .countdown-container {
       background-color: #fdf8f3;
@@ -111,7 +111,43 @@
   </div>
 
   <script>
-    let date = null;
+    const titleElement = document.getElementById("title");
+    const dateInput = document.getElementById("date-input");
+
+    // Cargar datos previos
+    const savedTitle = localStorage.getItem("widget-title");
+    const savedDate = localStorage.getItem("widget-date");
+
+    if (savedTitle) {
+      titleElement.textContent = savedTitle;
+    }
+
+    if (savedDate) {
+      dateInput.value = savedDate;
+      date = new Date(savedDate + "T00:00:00-03:00");
+    } else {
+      // Establecer fecha inicial por defecto: 6 oct 2025
+      const defaultDate = "2025-10-03";
+      dateInput.value = defaultDate;
+      localStorage.setItem("widget-date", defaultDate);
+      date = new Date(defaultDate + "T00:00:00-03:00");
+    }
+
+    // Guardar nuevo título cuando se edita
+    titleElement.addEventListener("input", () => {
+      localStorage.setItem("widget-title", titleElement.textContent);
+    });
+
+    // Guardar nueva fecha cuando se cambia
+    dateInput.addEventListener("change", () => {
+      const input = dateInput.value;
+      if (!input) return;
+      localStorage.setItem("widget-date", input);
+      date = new Date(input + "T00:00:00-03:00");
+      update();
+    });
+
+    let date = new Date(dateInput.value + "T00:00:00-03:00");
 
     function update() {
       const now = new Date();
@@ -138,39 +174,8 @@
       document.getElementById("hours").textContent = hours;
     }
 
-    // Cargar valores guardados
-    window.onload = () => {
-      const savedDate = localStorage.getItem("contador_fecha");
-      const savedTitle = localStorage.getItem("contador_titulo");
-
-      if (savedDate) {
-        document.getElementById("date-input").value = savedDate;
-        date = new Date(savedDate + "T00:00:00-03:00");
-        update();
-      }
-
-      if (savedTitle) {
-        document.getElementById("title").textContent = savedTitle;
-      }
-    };
-
-    // Guardar fecha
-    document.getElementById("date-input").onchange = () => {
-      const input = document.getElementById("date-input").value;
-      if (!input) return;
-      localStorage.setItem("contador_fecha", input);
-      date = new Date(input + "T00:00:00-03:00");
-      update();
-    };
-
-    // Guardar título cuando se cambia
-    document.getElementById("title").addEventListener("input", () => {
-      const title = document.getElementById("title").textContent;
-      localStorage.setItem("contador_titulo", title);
-    });
-
-    // Mostrar valores iniciales al principio
     update();
+    setInterval(update, 60000); // Actualiza cada minuto
   </script>
 </body>
 </html>
