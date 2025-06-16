@@ -14,7 +14,7 @@
       justify-content: center;
       align-items: start;
       height: 100vh;
-    } 
+    }
 
     .countdown-container {
       background-color: #fdf8f3;
@@ -88,7 +88,7 @@
 </head>
 <body>
   <div class="countdown-container">
-    <div contenteditable="true" class="editable-title">Tu título aquí</div>
+    <div contenteditable="true" class="editable-title" id="title">Tu título aquí</div>
     <div class="countdown-row">
       <div class="count-box">
         <span id="months">0</span>
@@ -110,62 +110,67 @@
     <input type="date" id="date-input" title="Elegí una fecha" />
   </div>
 
-<script>
-  let date = null;
+  <script>
+    let date = null;
 
-  function update() {
-    const now = new Date();
-    if (!date || date <= now) {
-      document.getElementById("months").textContent = 0;
-      document.getElementById("weeks").textContent = 0;
-      document.getElementById("days").textContent = 0;
-      document.getElementById("hours").textContent = 0;
-      return;
+    function update() {
+      const now = new Date();
+      if (!date || date <= now) {
+        document.getElementById("months").textContent = 0;
+        document.getElementById("weeks").textContent = 0;
+        document.getElementById("days").textContent = 0;
+        document.getElementById("hours").textContent = 0;
+        return;
+      }
+
+      const diff = date - now;
+      const totalHours = Math.floor(diff / (1000 * 60 * 60));
+      const totalDays = Math.floor(totalHours / 24);
+
+      const months = Math.floor(totalDays / 30);
+      const weeks = Math.floor(totalDays / 7);
+      const days = totalDays % 7;
+      const hours = totalHours % 24;
+
+      document.getElementById("months").textContent = months;
+      document.getElementById("weeks").textContent = weeks;
+      document.getElementById("days").textContent = days;
+      document.getElementById("hours").textContent = hours;
     }
 
-    const diff = date - now;
-    const totalHours = Math.floor(diff / (1000 * 60 * 60));
-    const totalDays = Math.floor(totalHours / 24);
+    // Cargar valores guardados
+    window.onload = () => {
+      const savedDate = localStorage.getItem("contador_fecha");
+      const savedTitle = localStorage.getItem("contador_titulo");
 
-    const months = Math.floor(totalDays / 30);
-    const weeks = Math.floor(totalDays / 7);
-    const days = totalDays % 7;
-    const hours = totalHours % 24;
+      if (savedDate) {
+        document.getElementById("date-input").value = savedDate;
+        date = new Date(savedDate + "T00:00:00-03:00");
+        update();
+      }
 
-    document.getElementById("months").textContent = months;
-    document.getElementById("weeks").textContent = weeks;
-    document.getElementById("days").textContent = days;
-    document.getElementById("hours").textContent = hours;
-  }
+      if (savedTitle) {
+        document.getElementById("title").textContent = savedTitle;
+      }
+    };
 
-  function getDateFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get("fecha");
-  }
+    // Guardar fecha
+    document.getElementById("date-input").onchange = () => {
+      const input = document.getElementById("date-input").value;
+      if (!input) return;
+      localStorage.setItem("contador_fecha", input);
+      date = new Date(input + "T00:00:00-03:00");
+      update();
+    };
 
-  function setDateInURL(dateStr) {
-    const url = new URL(window.location);
-    url.searchParams.set("fecha", dateStr);
-    window.history.replaceState({}, '', url);
-  }
+    // Guardar título cuando se cambia
+    document.getElementById("title").addEventListener("input", () => {
+      const title = document.getElementById("title").textContent;
+      localStorage.setItem("contador_titulo", title);
+    });
 
-  const savedDate = getDateFromURL();
-  if (savedDate) {
-    document.getElementById("date-input").value = savedDate;
-    date = new Date(savedDate + "T00:00:00-03:00");
+    // Mostrar valores iniciales al principio
     update();
-  }
-
-  document.getElementById("date-input").onchange = () => {
-    const input = document.getElementById("date-input").value;
-    if (!input) return;
-    date = new Date(input + "T00:00:00-03:00");
-    setDateInURL(input);
-    update();
-  };
-
-  // No setInterval -> no se vuelve a calcular solo :)
-</script>
-
+  </script>
 </body>
 </html>
